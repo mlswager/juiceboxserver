@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken');
 const { getUserById } = require('../db');
 const { JWT_SECRET } = process.env;
 
-// set `req.user` if possible
+
+// set `req.user` if possible for determining if a user is logged in
 apiRouter.use(async (req, res, next) => {
   const prefix = 'Bearer ';
   const auth = req.header('Authorization');//header is a function. you could also do it req.headers.authorization
@@ -35,6 +36,7 @@ apiRouter.use(async (req, res, next) => {
     });
   }
 });
+
 
 /*------middleware to say that there is a user logged in ------*/
 //?---more info on where this gets the info it's displaying---?

@@ -31,6 +31,8 @@ usersRouter.get("/",async (req,res,next)=>{
     })
 })
 
+/*-----post login------*/
+
 //this will happen when a POST request is receieved to /login. it will check the incoming username to see if it has username and password entered, and then check it against the usernames and passwords in the database
 usersRouter.post('/login', async (req, res, next) => {
     const { username, password } = req.body; //pulling username and password from the request
@@ -69,7 +71,7 @@ usersRouter.post('/login', async (req, res, next) => {
   })
 
 
-  /*------register------*/
+  /*------post register------*/
 
 
 
