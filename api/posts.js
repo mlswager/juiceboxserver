@@ -1,7 +1,7 @@
 const express = require("express")
 const postsRouter = express.Router()
 //the .. in ..db is because we have to go up a layer to get to the main branch that has access to db
-const {getAllPosts,createPost,updatePost,getPostById} = require("../db")
+const {getAllPosts,createPost,updatePost,getPostById,} = require("../db")
 const{requireUser}=require("./utils")
 
 //testing requireUser
@@ -20,10 +20,29 @@ postsRouter.use((req,res,next)=>{
 
 /*------gets all the posts------*/
 
+// postsRouter.get("/", async(req,res,next)=>{
+//     //forgot the await the first time
+//     const posts = await getAllPosts()
+//     res.send({posts})
+// })
+
 postsRouter.get("/", async(req,res,next)=>{
-    //forgot the await the first time
-    const posts = await getAllPosts()
-    res.send({posts})
+    try{
+        const allposts = await getAllPosts()
+        const posts = allposts.filter(post =>{
+            if (post.active){//if the post is active it can be displayed to anyone
+                return true
+            }
+            if (req.user && post.author.id === req.user.id){//if the post belongs to the user it can be displayed regardless of whether it is active(the instructions didn't say this until it gave us the code)
+                return true
+            }
+            return false//if neither of the above happen the post does not display
+        })
+        res.send({posts})
+    }
+    catch({name,message}){
+        next({name,message})
+    }
 })
 
 /*------create a new post------*/
@@ -105,6 +124,35 @@ postsRouter.patch("/:postId", requireUser, async(req,res,next) => {
         next({name,message})
     }
 
+
+})
+
+/*------delete posts------*/
+
+//didn't think to check that a post was actually returned from the database
+postsRouter.delete('/:postId', requireUser, async(req,res,next)=>{
+    const {postId} = req.params//destructure postId from request parameters
+    console.log("postId:",postId)
+    try{
+        const post = await getPostById(postId)//grab the post from the database based on the postId (forgot to do this step)(forgot the await)
+        console.log("post: ",post)
+        if(post && post.author.id===req.user.id){//if there is a post returned from the datavase AND if the author.id of the post from the database matches the id of the post from the databse
+        const deactivatePost = await updatePost(postId, {active:false})//use the updatePost function to change the active status to false (forgot the await)
+        res.send({post:deactivatePost})//send the deactivated post to the user
+        }
+        else{//TERNERY:if the author.id does not match the id of the the post from the database then send an error
+            next(post ? {//if there is a post returned from the database then send one error, if there is not then send a different error
+                name:"postDeleteErrorUnauthorizeUser",
+                message:"You cannot delete a post that is not yours"
+            }:{
+                name:"postDeleteErrorPostNotFound",
+                message: "The requested post was not found"
+            })
+        }
+    }
+    catch({name,message}){
+        next({name,message})
+    }
 
 })
 
