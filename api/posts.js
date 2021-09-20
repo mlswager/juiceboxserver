@@ -51,7 +51,7 @@ postsRouter.post("/",requireUser, async(req,res,next)=>{
     //console.log("req.body: ",req.body)
     const {title, content, tags=""} = req.body//this destructures the data in req.body
     //console.log("tags: ",tags)
-    const tagArr = tags.trim().split(/\s+/)//I believe this is turning tags from astrng to an array
+    const tagArr = tags.trim().split(/\s+/)//I believe this is turning tags from a string to an array
     //onsole.log("tagArr: ",tagArr)
     const postData = {}
 
